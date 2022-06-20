@@ -995,8 +995,6 @@ contract Vemate is  IBEP20, Ownable{
         uint256 marketingBnbShare = (receivedBnb*2*fee.marketing)/(totalFee*2 - fee.lp);
         uint256 charityBnbShare = (receivedBnb*2*fee.charity)/(totalFee*2 - fee.lp);
 
-
-        // feeWallets.lp.transfer(lpHalfBnbShare);
         feeWallets.dev.transfer(devBnbShare);
         feeWallets.marketing.transfer(marketingBnbShare);
         feeWallets.charity.transfer(charityBnbShare);
@@ -1031,7 +1029,6 @@ contract Vemate is  IBEP20, Ownable{
     }
 
     function addLiquidity(uint256 tokenAmount, uint256 ethAmount) private {
-        // require(msg.value>0, "No eth found in this account");
         // approve token transfer to cover all possible scenarios
         _approve(address(this), address(uniswapV2Router), tokenAmount);
 

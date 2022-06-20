@@ -584,8 +584,6 @@ contract Vemate is  IBEP20, Ownable{
     mapping (address => bool) private _isPrivileged;
     mapping (address => uint) private _addressToLastSwapTime;
 
-    uint256 public lockedBetweenSells = 60;
-    uint256 public lockedBetweenBuys = 60;
     uint256 public numTokensSellToAddToLiquidity = 10000 * 10**_decimals; // 10 Token
 
     // We will depend on external price for the token to protect the sandwich attack.
@@ -748,20 +746,6 @@ contract Vemate is  IBEP20, Ownable{
     function togglePauseSellingFee() external onlyOwner{
         fee.enabledOnSell = !fee.enabledOnSell;
         emit UpdateSellingFee(fee.enabledOnSell);
-    }
-
-    function setLockTimeBetweenSells(uint256 newLockSeconds) external onlyOwner {
-        require(newLockSeconds <= 30, "Time between sells must be less than 30 seconds");
-        uint256 _previous = lockedBetweenSells;
-        lockedBetweenSells = newLockSeconds;
-        emit UpdateLockedBetweenSells(lockedBetweenSells, _previous);
-    }
-
-    function setLockTimeBetweenBuys(uint256 newLockSeconds) external onlyOwner {
-        require(newLockSeconds <= 30, "Time between buys be less than 30 seconds");
-        uint256 _previous = lockedBetweenBuys;
-        lockedBetweenBuys = newLockSeconds;
-        emit UpdateLockedBetweenBuys(lockedBetweenBuys, _previous);
     }
 
     function updateTokenPrice(uint256 _tokenPerBNB) external onlyOwner {
@@ -1111,7 +1095,6 @@ contract Vemate is  IBEP20, Ownable{
     function checkSwapFrequency(address whom) internal{
         uint currentTime = getCurrentTime();
         uint lastSwapTime = _addressToLastSwapTime[whom];
-        require(currentTime - lastSwapTime >= lockedBetweenSells, "Lock time has not been released from last swap");
 
         _addressToLastSwapTime[whom] = currentTime;
     }
@@ -1134,9 +1117,6 @@ contract Vemate is  IBEP20, Ownable{
 
     event UpdateSellingFee(bool isEnabled);
     event UpdateBuyingFee(bool isEnabled);
-
-    event UpdateLockedBetweenBuys(uint256 cooldown, uint256 previous);
-    event UpdateLockedBetweenSells(uint256 cooldown, uint256 previous);
 
     event UpdateTokenPerBNB(uint256 tokenPerBNB);
     event UpdateSwapAndLiquify(bool swapAndLiquifyEnabled);

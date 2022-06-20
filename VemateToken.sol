@@ -984,7 +984,7 @@ contract Vemate is  IBEP20, Ownable{
         uint256 lpHalf =  (amount*fee.lp)/(totalFee*2);
 
         // swap dev + marketing + charity + lpHalf
-        swapTokensForEth(amount - lpHalf);
+        swapTokensForBnb(amount - lpHalf);
 
         // how much ETH did we just swap into?
         uint256 receivedBnb = address(this).balance - initialBalance;
@@ -1002,7 +1002,7 @@ contract Vemate is  IBEP20, Ownable{
         addLiquidity(lpHalf, lpHalfBnbShare);
     }
 
-    function swapTokensForEth(uint256 tokenAmount) private {
+    function swapTokensForBnb(uint256 tokenAmount) private {
         // generate the uniswap pair path of token -> weth
         address[] memory path = new address[](2);
         path[0] = address(this);
@@ -1010,14 +1010,14 @@ contract Vemate is  IBEP20, Ownable{
 
         _approve(address(this), address(uniswapV2Router), tokenAmount);
 
-        uint ethAmount = tokenAmount/tokenPerBNB;
+        uint bnbAmount = tokenAmount/tokenPerBNB;
 
-        uint minETHAmount = ethAmount - (ethAmount* swapSlippageTolerancePercent)/100;
+        uint minBNBAmount = bnbAmount - (bnbAmount* swapSlippageTolerancePercent)/100;
 
         // make the swap
         try uniswapV2Router.swapExactTokensForETHSupportingFeeOnTransferTokens(
             tokenAmount,
-            minETHAmount, // this will protect sandwich attack
+            minBNBAmount, // this will protect sandwich attack
             path,
             address(this),
             getCurrentTime()
@@ -1028,23 +1028,23 @@ contract Vemate is  IBEP20, Ownable{
         }
     }
 
-    function addLiquidity(uint256 tokenAmount, uint256 ethAmount) private {
+    function addLiquidity(uint256 tokenAmount, uint256 bnbAmount) private {
         // approve token transfer to cover all possible scenarios
         _approve(address(this), address(uniswapV2Router), tokenAmount);
 
-        uint minETHAmount = ethAmount - (ethAmount* swapSlippageTolerancePercent)/100;
+        uint minBNBAmount = bnbAmount - (bnbAmount* swapSlippageTolerancePercent)/100;
         uint minTokenAmount = tokenAmount - (tokenAmount* swapSlippageTolerancePercent)/100;
 
         // add the liquidity
-        uniswapV2Router.addLiquidityETH{value: ethAmount}(
+        uniswapV2Router.addLiquidityBNB{value: bnbAmount}(
             address(this),
             tokenAmount,
             minTokenAmount,
-            minETHAmount,
+            minBNBAmount,
             address(this),
             getCurrentTime()
         );
-        emit LiquidityAdded(tokenAmount, ethAmount);
+        emit LiquidityAdded(tokenAmount, bnbAmount);
     }
 
     function _tokenTransfer(

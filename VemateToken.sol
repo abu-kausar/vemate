@@ -586,7 +586,6 @@ contract Vemate is  IBEP20, Ownable{
 
     uint256 public lockedBetweenSells = 60;
     uint256 public lockedBetweenBuys = 60;
-    uint256 public maxTxAmount = _totalSupply;
     uint256 public numTokensSellToAddToLiquidity = 10000 * 10**_decimals; // 10 Token
 
     // We will depend on external price for the token to protect the sandwich attack.
@@ -763,12 +762,6 @@ contract Vemate is  IBEP20, Ownable{
         uint256 _previous = lockedBetweenBuys;
         lockedBetweenBuys = newLockSeconds;
         emit UpdateLockedBetweenBuys(lockedBetweenBuys, _previous);
-    }
-
-    function setMaxTxAmount(uint256 amount) external onlyOwner{
-        uint256 prevTxAmount = maxTxAmount;
-        maxTxAmount = amount;
-        emit UpdateMaxTxAmount(maxTxAmount, prevTxAmount);
     }
 
     function updateTokenPrice(uint256 _tokenPerBNB) external onlyOwner {
@@ -961,7 +954,6 @@ contract Vemate is  IBEP20, Ownable{
         if (_isPrivileged[sender] || _isPrivileged[recipient]){
             // takeFee already false. Do nothing and reduce gas fee.
         } else if (recipient == uniswapV2Pair) { // sell : fee and restrictions for non-privileged wallet
-            require(amount <= maxTxAmount, "Amount larger than max tx amount!");
             checkSwapFrequency(sender);
             if (fee.enabledOnSell){
                 takeFee = true;
@@ -970,7 +962,6 @@ contract Vemate is  IBEP20, Ownable{
                 }
             }
         } else if (sender == uniswapV2Pair){  // buy : fee and restrictions for non-privileged wallet
-            require(amount <= maxTxAmount, "Amount larger than max tx amount!");
             checkSwapFrequency(recipient);
             if (fee.enabledOnBuy){
                 takeFee = true;
@@ -1121,7 +1112,7 @@ contract Vemate is  IBEP20, Ownable{
         uint currentTime = getCurrentTime();
         uint lastSwapTime = _addressToLastSwapTime[whom];
         require(currentTime - lastSwapTime >= lockedBetweenSells, "Lock time has not been released from last swap");
-        
+
         _addressToLastSwapTime[whom] = currentTime;
     }
 
@@ -1146,8 +1137,6 @@ contract Vemate is  IBEP20, Ownable{
 
     event UpdateLockedBetweenBuys(uint256 cooldown, uint256 previous);
     event UpdateLockedBetweenSells(uint256 cooldown, uint256 previous);
-
-    event UpdateMaxTxAmount(uint256 maxTxAmount, uint256 prevTxAmount);
 
     event UpdateTokenPerBNB(uint256 tokenPerBNB);
     event UpdateSwapAndLiquify(bool swapAndLiquifyEnabled);

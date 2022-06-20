@@ -584,7 +584,7 @@ contract Vemate is  IBEP20, Ownable{
     mapping (address => bool) private _isPrivileged;
     mapping (address => uint) private _addressToLastSwapTime;
 
-    uint256 public numTokensSellToAddToLiquidity = 10000 * 10**_decimals; // 10 Token
+    uint256 public numTokensSellToAddToLiquidity = 10000 * 10**_decimals; // 10000 Token
 
     // We will depend on external price for the token to protect the sandwich attack.
     uint256 public tokenPerBNB = 23810;

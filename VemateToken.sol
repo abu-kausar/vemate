@@ -1066,7 +1066,9 @@ contract Vemate is  IBEP20, Ownable{
             transferAmount = transferAmount - totalFee;
             emit Transfer(sender, address(this), totalFee);
         }
-        _balances[sender] = _balances[sender] - amount;
+        unchecked {
+            _balances[sender] = _balances[sender] - amount;
+        }
         _balances[recipient] = _balances[recipient] + transferAmount;
         emit Transfer(sender, recipient, transferAmount);
     }

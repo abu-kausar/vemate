@@ -602,7 +602,6 @@ contract Vemate is  IBEP20, Ownable{
         address payable marketingAddress,
         address payable charityAddress
     ){
-        require(owner() != address(0), "Owner must be set");
         require(router != address(0), "Router must be set");
         require(devAddress != address(0), "Dev wallet must be set");
         require(marketingAddress != address(0), "Marketing wallet must be set");

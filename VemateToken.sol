@@ -870,7 +870,9 @@ contract Vemate is  IBEP20, Ownable{
         uint256 _currentAllowance = _allowances[sender][_msgSender()];
         // this check is not mandatory. but to return exact overflow reason we can use it.
         require(_currentAllowance >= amount, "BEP20: transfer amount exceeds allowance");
-        _approve(sender, _msgSender(), _currentAllowance - amount);
+        unchecked {
+            _approve(sender, _msgSender(), _currentAllowance - amount);
+        }
         return true;
     }
 
@@ -909,7 +911,9 @@ contract Vemate is  IBEP20, Ownable{
         uint256 _currentAllowance = _allowances[_msgSender()][spender];
         // this check is not mandatory. but to return exact overflow reason we can use it.
         require(_currentAllowance >= subtractedValue, "BEP20: decreased allowance below zero");
-        _approve(_msgSender(), spender, _currentAllowance - subtractedValue);
+        unchecked {
+            _approve(_msgSender(), spender, _currentAllowance - subtractedValue);
+        }
         return true;
     }
 

@@ -674,21 +674,6 @@ contract Vemate is  IBEP20, Ownable{
         emit UpdateCharityWallet(charityWallet, charityWalletPrev);
     }
 
-    function addPrivilegedWallet(address newPrivilegedAddress) external onlyOwner {
-        require(newPrivilegedAddress != address(0), "privileged address can not be set zero address");
-        require(_isPrivileged[newPrivilegedAddress] != true, "already privileged");
-        _isPrivileged[newPrivilegedAddress] = true;
-
-        emit PrivilegedWallet(newPrivilegedAddress, true);
-    }
-
-    function removePrivilegedWallet(address prevPrivilegedAddress) external onlyOwner {
-        require(_isPrivileged[prevPrivilegedAddress] != false, "not privileged address");    
-        delete _isPrivileged[prevPrivilegedAddress];
-
-        emit PrivilegedWallet(prevPrivilegedAddress, false);
-    }
-
     function privilegedAddress(address existingPrivilegedAddress) public view returns(bool){
         return _isPrivileged[existingPrivilegedAddress];
     }
@@ -776,13 +761,6 @@ contract Vemate is  IBEP20, Ownable{
 
     function withdrawResidualToken(address newAddress) external onlyOwner() {
         _transfer(address(this), newAddress, _balances[address(this)]);
-    }
-
-    /**
-    * @dev Returns the bep token owner.
-    */
-    function getOwner() external override view returns (address) {
-        return owner();
     }
 
     /**

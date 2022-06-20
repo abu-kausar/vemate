@@ -571,7 +571,6 @@ contract Vemate is  IBEP20, Ownable{
     uint8   private _decimals = 18;
     uint8   public constant maxFeePercent = 5;
     uint8   public swapSlippageTolerancePercent = 10;
-    bool    private antiBot = true;
     bool    private inSwapAndLiquify;
     bool    public swapAndLiquifyEnabled = true;
     uint32  private blockTimestampLast;
@@ -764,11 +763,6 @@ contract Vemate is  IBEP20, Ownable{
         uint256 _previous = lockedBetweenBuys;
         lockedBetweenBuys = newLockSeconds;
         emit UpdateLockedBetweenBuys(lockedBetweenBuys, _previous);
-    }
-
-    function toggleAntiBot() external onlyOwner {
-        antiBot = !antiBot;
-        emit UpdateAntibot(antiBot);
     }
 
     function setMaxTxAmount(uint256 amount) external onlyOwner{
@@ -1125,11 +1119,9 @@ contract Vemate is  IBEP20, Ownable{
 
     function checkSwapFrequency(address whom) internal{
         uint currentTime = getCurrentTime();
-        if (antiBot) {
-            uint lastSwapTime = _addressToLastSwapTime[whom];
-            require(currentTime - lastSwapTime >= lockedBetweenSells, "Lock time has not been released from last swap"
-            );
-        }
+        uint lastSwapTime = _addressToLastSwapTime[whom];
+        require(currentTime - lastSwapTime >= lockedBetweenSells, "Lock time has not been released from last swap");
+        
         _addressToLastSwapTime[whom] = currentTime;
     }
 
@@ -1154,8 +1146,6 @@ contract Vemate is  IBEP20, Ownable{
 
     event UpdateLockedBetweenBuys(uint256 cooldown, uint256 previous);
     event UpdateLockedBetweenSells(uint256 cooldown, uint256 previous);
-
-    event UpdateAntibot(bool isEnabled);
 
     event UpdateMaxTxAmount(uint256 maxTxAmount, uint256 prevTxAmount);
 

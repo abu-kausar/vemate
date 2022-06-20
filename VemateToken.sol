@@ -564,11 +564,11 @@ contract Vemate is  IBEP20, Ownable{
 
     IUniswapV2Router02 public uniswapV2Router;
 
-    string private  _name = "Vemate";
-    string private _symbol = "V";
+    string private constant _name = "Vemate";
+    string private constant _symbol = "V";
 
     // Pack variables together for gas optimization
-    uint8   private _decimals = 18;
+    uint8   private constant _decimals = 18;
     uint8   public constant maxFeePercent = 5;
     uint8   public swapSlippageTolerancePercent = 10;
     bool    private inSwapAndLiquify;
@@ -577,7 +577,7 @@ contract Vemate is  IBEP20, Ownable{
 
     address public uniswapV2Pair;
 
-    uint256 private _totalSupply = 150000000 * 10**_decimals; // 150 million;
+    uint256 private constant _totalSupply = 150000000 * 10**_decimals; // 150 million;
 
     mapping (address => uint256) private _balances;
     mapping (address => mapping (address => uint256)) private _allowances;

@@ -565,7 +565,7 @@ contract Vemate is  IBEP20, Ownable{
     IUniswapV2Router02 public uniswapV2Router;
 
     string private constant _NAME = "Vemate";
-    string private constant _SYMBOL = "V";
+    string private constant _SYMBOL = "VMT";
 
     // Pack variables together for gas optimization
     uint8   private constant _DECIMALS = 18;

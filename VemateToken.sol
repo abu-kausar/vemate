@@ -564,19 +564,19 @@ contract Vemate is  IBEP20, Ownable{
 
     IUniswapV2Router02 public uniswapV2Router;
 
-    string private constant _name = "Vemate";
-    string private constant _symbol = "V";
+    string private constant _NAME = "Vemate";
+    string private constant _SYMBOL = "V";
 
     // Pack variables together for gas optimization
-    uint8   private constant _decimals = 18;
-    uint8   public constant maxFeePercent = 5;
+    uint8   private constant _DECIMALS = 18;
+    uint8   public constant MAX_FEE_PERCENT = 5;
     uint8   public swapSlippageTolerancePercent = 10;
     bool    private inSwapAndLiquify;
     bool    public swapAndLiquifyEnabled = true;
 
     address public uniswapV2Pair;
 
-    uint256 private constant _totalSupply = 15 * 10**7 * 10**_decimals; // 150 million;
+    uint256 private constant TOTAL_SUPPLY = 15 * 10**7 * 10**_DECIMALS; // 150 million;
 
     mapping (address => uint256) private _balances;
     mapping (address => mapping (address => uint256)) private _allowances;
@@ -619,9 +619,9 @@ contract Vemate is  IBEP20, Ownable{
         uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory()).createPair(address(this), _uniswapV2Router.WETH());
         uniswapV2Router = _uniswapV2Router;
 
-        _balances[_msgSender()] = _totalSupply;
+        _balances[_msgSender()] = TOTAL_SUPPLY;
 
-        emit Transfer(address(0), _msgSender(), _totalSupply);
+        emit Transfer(address(0), _msgSender(), TOTAL_SUPPLY);
     }
 
     function setRouterAddress(address newRouter) external onlyOwner {
@@ -787,7 +787,7 @@ contract Vemate is  IBEP20, Ownable{
     * @dev See {BEP20-totalSupply}.
     */
     function totalSupply() external override view returns (uint256) {
-        return _totalSupply;
+        return TOTAL_SUPPLY;
     }
 
     /**

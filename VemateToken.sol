@@ -582,7 +582,7 @@ contract Vemate is  IBEP20, Ownable{
     mapping (address => bool) private _isPrivileged;
     mapping (address => uint) private _addressToLastSwapTime;
 
-    uint256 public numTokensSellToAddToLiquidity = 10000 * 10**_decimals; // 10000 Token
+    uint256 public minTokensToSwapAndLiquify = 10000 * 10**_decimals; // 10000 Token
 
     modifier lockTheSwap {
         inSwapAndLiquify = true;
@@ -733,9 +733,9 @@ contract Vemate is  IBEP20, Ownable{
 
     function setMinTokenToSwapAndLiquify(uint256 amount) external onlyOwner{
         require(amount>0, "amount cannot be zero");
-        uint256 numTokensSellToAddToLiquidityPrev = numTokensSellToAddToLiquidity;
-        numTokensSellToAddToLiquidity = amount;
-        emit UpdateMinTokenToSwapAndLiquify(numTokensSellToAddToLiquidity, numTokensSellToAddToLiquidityPrev);
+        uint256 numTokensSellToAddToLiquidityPrev = minTokensToSwapAndLiquify;
+        minTokensToSwapAndLiquify = amount;
+        emit UpdateMinTokenToSwapAndLiquify(minTokensToSwapAndLiquify, numTokensSellToAddToLiquidityPrev);
     }
 
     function withdrawResidualBNB(address newAddress) external onlyOwner() {
@@ -907,7 +907,7 @@ contract Vemate is  IBEP20, Ownable{
             if (fee.enabledOnSell){
                 takeFee = true;
                 if (shouldSwap()){
-                    swapAndLiquify(numTokensSellToAddToLiquidity);
+                    swapAndLiquify(minTokensToSwapAndLiquify);
                 }
             }
         } else if (sender == uniswapV2Pair){  // buy : fee and restrictions for non-privileged wallet
@@ -915,7 +915,7 @@ contract Vemate is  IBEP20, Ownable{
             if (fee.enabledOnBuy){
                 takeFee = true;
                 if (shouldSwap()){
-                    swapAndLiquify(numTokensSellToAddToLiquidity);
+                    swapAndLiquify(minTokensToSwapAndLiquify);
                 }
             }
         }
@@ -924,7 +924,7 @@ contract Vemate is  IBEP20, Ownable{
 
     function shouldSwap() private view returns(bool)  {
         uint256 contractTokenBalance = _balances[(address(this))];
-        bool overMinTokenBalance = contractTokenBalance >= numTokensSellToAddToLiquidity;
+        bool overMinTokenBalance = contractTokenBalance >= minTokensToSwapAndLiquify;
 
         if (overMinTokenBalance && !inSwapAndLiquify && swapAndLiquifyEnabled) {
             return true;
@@ -1077,7 +1077,7 @@ contract Vemate is  IBEP20, Ownable{
 
     event UpdateSwapAndLiquify(bool swapAndLiquifyEnabled);
     event UpdateSwapTolerancePercent(uint8 swapTolerancePercent, uint8 swapTolerancePercentPrev);
-    event UpdateMinTokenToSwapAndLiquify(uint256 numTokensSellToAddToLiquidity, uint256 numTokensSellToAddToLiquidityPrev);
+    event UpdateMinTokenToSwapAndLiquify(uint256 minTokensToSwapAndLiquify, uint256 numTokensSellToAddToLiquidityPrev);
     event LiquidityAdded(uint256 tokenAmount, uint256 bnbAmount);
     event SwapAndLiquifyStatus(string status);
 }

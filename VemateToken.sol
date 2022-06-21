@@ -573,7 +573,6 @@ contract Vemate is  IBEP20, Ownable{
     uint8   public swapSlippageTolerancePercent = 10;
     bool    private inSwapAndLiquify;
     bool    public swapAndLiquifyEnabled = true;
-    uint32  private blockTimestampLast;
 
     address public uniswapV2Pair;
 

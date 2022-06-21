@@ -585,10 +585,6 @@ contract Vemate is  IBEP20, Ownable{
 
     uint256 public numTokensSellToAddToLiquidity = 10000 * 10**_decimals; // 10000 Token
 
-    // We will depend on external price for the token to protect the sandwich attack.
-    uint256 public tokenPerBNB = 23810;
-
-
     modifier lockTheSwap {
         inSwapAndLiquify = true;
         _;
@@ -731,11 +727,6 @@ contract Vemate is  IBEP20, Ownable{
         emit UpdateSellingFee(fee.enabledOnSell);
     }
 
-    function updateTokenPrice(uint256 _tokenPerBNB) external onlyOwner {
-        tokenPerBNB = _tokenPerBNB;
-        emit UpdateTokenPerBNB(tokenPerBNB);
-    }
-
     function toggleSwapAndLiquify() external onlyOwner{
         swapAndLiquifyEnabled = !swapAndLiquifyEnabled;
         emit UpdateSwapAndLiquify(swapAndLiquifyEnabled);
@@ -749,6 +740,7 @@ contract Vemate is  IBEP20, Ownable{
     }
 
     function setMinTokenToSwapAndLiquify(uint256 amount) external onlyOwner{
+        require(amount>0, "amount cannot be zero");
         uint256 numTokensSellToAddToLiquidityPrev = numTokensSellToAddToLiquidity;
         numTokensSellToAddToLiquidity = amount;
         emit UpdateMinTokenToSwapAndLiquify(numTokensSellToAddToLiquidity, numTokensSellToAddToLiquidityPrev);
@@ -991,14 +983,10 @@ contract Vemate is  IBEP20, Ownable{
 
         _approve(address(this), address(uniswapV2Router), tokenAmount);
 
-        uint bnbAmount = tokenAmount/tokenPerBNB;
-
-        uint minBNBAmount = bnbAmount - (bnbAmount* swapSlippageTolerancePercent)/100;
-
         // make the swap
         try uniswapV2Router.swapExactTokensForETHSupportingFeeOnTransferTokens(
             tokenAmount,
-            minBNBAmount, // this will protect sandwich attack
+            0,
             path,
             address(this),
             getCurrentTime()
@@ -1098,7 +1086,6 @@ contract Vemate is  IBEP20, Ownable{
     event UpdateSellingFee(bool isEnabled);
     event UpdateBuyingFee(bool isEnabled);
 
-    event UpdateTokenPerBNB(uint256 tokenPerBNB);
     event UpdateSwapAndLiquify(bool swapAndLiquifyEnabled);
     event UpdateSwapTolerancePercent(uint8 swapTolerancePercent, uint8 swapTolerancePercentPrev);
     event UpdateMinTokenToSwapAndLiquify(uint256 numTokensSellToAddToLiquidity, uint256 numTokensSellToAddToLiquidityPrev);

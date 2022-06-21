@@ -755,6 +755,7 @@ contract Vemate is  IBEP20, Ownable{
     }
 
     function withdrawResidualBNB(address newAddress) external onlyOwner() {
+        require(newAddress != address(0), "Zero address");
         payable(newAddress).transfer(address(this).balance);
     }
 

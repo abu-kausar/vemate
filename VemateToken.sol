@@ -813,8 +813,8 @@ contract Vemate is  IBEP20, Ownable{
     /**
     * @dev See {BEP20-allowance}.
     */
-    function allowance(address owner, address spender) external override view returns (uint256) {
-        return _allowances[owner][spender];
+    function allowance(address owner_, address spender) external override view returns (uint256) {
+        return _allowances[owner_][spender];
     }
 
     /**
@@ -1063,12 +1063,12 @@ contract Vemate is  IBEP20, Ownable{
     * - `owner` cannot be the zero address.
     * - `spender` cannot be the zero address.
     */
-    function _approve(address owner, address spender, uint256 amount) internal {
-        require(owner != address(0), "BEP20: approve from the zero address");
+    function _approve(address owner_, address spender, uint256 amount) internal {
+        require(owner_ != address(0), "BEP20: approve from the zero address");
         require(spender != address(0), "BEP20: approve to the zero address");
 
-        _allowances[owner][spender] = amount;
-        emit Approval(owner, spender, amount);
+        _allowances[owner_][spender] = amount;
+        emit Approval(owner_, spender, amount);
     }
 
     function checkSwapFrequency(address whom) internal{

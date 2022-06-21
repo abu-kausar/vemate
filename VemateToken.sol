@@ -675,7 +675,7 @@ contract Vemate is  IBEP20, Ownable{
     function setLpFeePercent(uint8 lpFeePercent) external onlyOwner {
         FeePercent memory currentFee = fee;
         uint8 totalFeePercent = currentFee.marketing + currentFee.dev + currentFee.charity + lpFeePercent;
-        require(totalFeePercent <= maxFeePercent, "Total fee percent cannot be greater than maxFeePercent");
+        require(totalFeePercent <= MAX_FEE_PERCENT, "Total fee percent cannot be greater than MAX_FEE_PERCENT");
         uint8 previousFee = currentFee.lp;
         currentFee.lp = lpFeePercent;
         fee = currentFee;
@@ -686,7 +686,7 @@ contract Vemate is  IBEP20, Ownable{
     function setDevFeePercent(uint8 devFeePercent) external onlyOwner {
         FeePercent memory currentFee = fee;
         uint8 totalFeePercent = currentFee.marketing + currentFee.lp + currentFee.charity + devFeePercent;
-        require(totalFeePercent <= maxFeePercent, "Total fee percent cannot be greater than maxFeePercent");
+        require(totalFeePercent <= MAX_FEE_PERCENT, "Total fee percent cannot be greater than MAX_FEE_PERCENT");
         uint8 previousFee = currentFee.dev;
         currentFee.dev = devFeePercent;
         fee = currentFee;
@@ -697,7 +697,7 @@ contract Vemate is  IBEP20, Ownable{
     function setMarketingFeePercent(uint8 marketingFeePercent) external onlyOwner {
         FeePercent memory currentFee = fee;
         uint8 totalFeePercent = currentFee.lp + currentFee.dev + currentFee.charity + marketingFeePercent;
-        require(totalFeePercent <= maxFeePercent, "Total fee percent cannot be greater than maxFeePercent");
+        require(totalFeePercent <= MAX_FEE_PERCENT, "Total fee percent cannot be greater than MAX_FEE_PERCENT");
         uint8 previousFee = currentFee.marketing;
         currentFee.marketing = marketingFeePercent;
         fee = currentFee;
@@ -708,7 +708,7 @@ contract Vemate is  IBEP20, Ownable{
     function setCharityFeePercent(uint8 charityFeePercent) external onlyOwner {
         FeePercent memory currentFee = fee;
         uint8 totalFeePercent = currentFee.marketing + currentFee.dev + currentFee.lp + charityFeePercent;
-        require(totalFeePercent <= maxFeePercent, "Total fee percent cannot be greater than maxFeePercent");
+        require(totalFeePercent <= MAX_FEE_PERCENT, "Total fee percent cannot be greater than MAX_FEE_PERCENT");
         uint8 previousFee = currentFee.charity;
         currentFee.charity = charityFeePercent;
         fee = currentFee;

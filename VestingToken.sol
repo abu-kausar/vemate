@@ -51,7 +51,7 @@ contract Vesting is Ownable {
     * @param account for which the amount will be calculated
     * @return the total amount of vesting schedules
     */
-    function getWithdrawbleAmount(address account)
+    function getWithdrawbleAmount(address account, uint256 initialTokenUnlockTime)
     external
     view
     returns(uint256){
@@ -60,8 +60,8 @@ contract Vesting is Ownable {
         uint256 totalVestingShedules = getVestingSchedulesCount(account);
         for (uint256 i = 0 ; i < totalVestingShedules; i++) {
             VestingSchedule storage vestingSchedule = vestingSchedules[computeVestingScheduleIdForAddressAndIndex(account, i)];
-            if (vestingSchedule.released) {
-                if (vestingSchedule.end <= currentTime) {
+            if (!vestingSchedule.released) {
+                if (initialTokenUnlockTime + vestingSchedule.end <= currentTime) {
                     amountUnlocked += vestingSchedule.amountTotal;
                 }
             }
@@ -73,7 +73,7 @@ contract Vesting is Ownable {
     /**
     * @notice claim transfer the withdrawble amount to the buyers address
     */
-    function claim(address account) internal returns (uint256) {
+    function claim(address account, uint256 initialTokenUnlockTime ) internal returns (uint256) {
         uint256 currentTime = getCurrentTime();
         uint256 amountUnlocked = 0;
         uint256 totalVestingShedules = getVestingSchedulesCount(account);
@@ -81,7 +81,7 @@ contract Vesting is Ownable {
             bytes32 vid = computeVestingScheduleIdForAddressAndIndex(account, i);
             VestingSchedule storage vestingSchedule = vestingSchedules[vid];
             if (!vestingSchedule.released) {
-                if (vestingSchedule.end <= currentTime) {
+                if (initialTokenUnlockTime + vestingSchedule.end <= currentTime) {
                     amountUnlocked += vestingSchedule.amountTotal;
                     vestingSchedules[vid].released = true;
                 }

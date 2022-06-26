@@ -16,6 +16,7 @@ contract PrivateSale is Ownable, Vesting{
     bool public isInPrivateSale;
     bool public isPrivateSaleDone;
     bool public isPrivateSalePaused;
+    bool private inWithdraw;
 
     uint256 private constant DAY = 24 * 60 * 60;
     uint256 private constant MONTH = DAY * 30;
@@ -28,6 +29,12 @@ contract PrivateSale is Ownable, Vesting{
     uint256 public initialTokenUnlockTime;
 
     uint256 public vematePerBUSD = 60;
+
+    modifier lockTheWithdraw {
+        inWithdraw = true;
+        _;
+        inWithdraw = false;
+    }
 
     constructor(address payable vemateToken, address erc20Token){
         require(vemateToken != address(0x0));
@@ -101,14 +108,14 @@ contract PrivateSale is Ownable, Vesting{
 
         uint256 time = getCurrentTime();
         //unlock 15% on initialTokenUnlockTime
-        createVestingSchedule(to, time, initialTokenUnlockTime, (tokenAmount*15)/100);
+        createVestingSchedule(to, time, 0, (tokenAmount*15)/100);
 
         for (uint8 i = 1; i < 7; i++){
             // unlock 12.5% on each month
-            createVestingSchedule(to, time, initialTokenUnlockTime + (MONTH*i), (tokenAmount*125)/1000);
+            createVestingSchedule(to, time, (MONTH*i), (tokenAmount*125)/1000);
         }
         // unlock last 10% on 8th month after initialTokenUnlockTime
-        createVestingSchedule(to, time, initialTokenUnlockTime + (MONTH*7), (tokenAmount*10)/100);
+        createVestingSchedule(to, time, (MONTH*7), (tokenAmount*10)/100);
 
         totalAmountInVesting += tokenAmount;
         totalSoldToken += tokenAmount;
@@ -132,14 +139,14 @@ contract PrivateSale is Ownable, Vesting{
         uint256 time = getCurrentTime();
          
         //unlock 15% on initialTokenUnlockTime
-        createVestingSchedule(to, time, initialTokenUnlockTime, (tokenAmount*15)/100);
+        createVestingSchedule(to, time, 0, (tokenAmount*15)/100);
 
         for (uint8 i = 1; i < 7; i++){
             // unlock 12.5% on each month
-            createVestingSchedule(to, time, initialTokenUnlockTime + (MONTH*i), (tokenAmount*125)/1000);
+            createVestingSchedule(to, time, (MONTH*i), (tokenAmount*125)/1000);
         }
         // unlock last 10% on 8th month after initialTokenUnlockTime
-        createVestingSchedule(to, time, initialTokenUnlockTime + (MONTH*7), (tokenAmount*10)/100);
+        createVestingSchedule(to, time,  (MONTH*7), (tokenAmount*10)/100);
 
         totalAmountInVesting += tokenAmount;
         totalSoldToken += tokenAmount;
@@ -169,7 +176,7 @@ contract PrivateSale is Ownable, Vesting{
 
         totalSoldToken+= totalToken;
         uint256 time = getCurrentTime();
-        createVestingSchedule(to, time, time + (MONTH*12), totalToken);
+        createVestingSchedule(to, time, (MONTH*12), totalToken);
         totalAmountInVesting += tokenAmount;
         erc20.transferFrom(to, address(this), priceInBUSD);
     }
@@ -195,7 +202,7 @@ contract PrivateSale is Ownable, Vesting{
 
         totalSoldToken+= totalToken;
         uint256 time = getCurrentTime();
-        createVestingSchedule(to, time, time + (MONTH*12), totalToken);
+        createVestingSchedule(to, time, (MONTH*12), totalToken);
         totalAmountInVesting += tokenAmount;
     }
 
@@ -215,14 +222,14 @@ contract PrivateSale is Ownable, Vesting{
         uint256 time = getCurrentTime();
          
         //unlock 15% on initialTokenUnlockTime
-        createVestingSchedule(to, time, initialTokenUnlockTime, (tokenAmount*15)/100);
+        createVestingSchedule(to, time, 0, (tokenAmount*15)/100);
 
         for (uint8 i = 1; i < 12; i++){
             // unlock 7% on each month
-            createVestingSchedule(to, time, initialTokenUnlockTime + (MONTH*i), (tokenAmount*7)/100);
+            createVestingSchedule(to, time, (MONTH*i), (tokenAmount*7)/100);
         }
         // unlock last 8% on 12th month after initialTokenUnlockTime
-        createVestingSchedule(to, time, initialTokenUnlockTime + (MONTH*12), (tokenAmount*8)/100);
+        createVestingSchedule(to, time,  (MONTH*12), (tokenAmount*8)/100);
 
         totalAmountInVesting += tokenAmount;
         totalSoldToken += tokenAmount;
@@ -243,7 +250,7 @@ contract PrivateSale is Ownable, Vesting{
 
         totalSoldToken += tokenAmount;
         uint256 time = getCurrentTime();
-        createVestingSchedule(to, time, time + (MONTH*12), tokenAmount);
+        createVestingSchedule(to, time, (MONTH*12), tokenAmount);
         totalAmountInVesting += tokenAmount;
     }
 
@@ -263,14 +270,14 @@ contract PrivateSale is Ownable, Vesting{
         uint256 time = getCurrentTime();
          
         //unlock 20% on initialTokenUnlockTime
-        createVestingSchedule(to, time, initialTokenUnlockTime, (tokenAmount*20)/100);
+        createVestingSchedule(to, time, 0, (tokenAmount*20)/100);
 
         for (uint8 i = 1; i < 11; i++){
             // unlock 7% on each month
-            createVestingSchedule(to, time, initialTokenUnlockTime + (MONTH*i), (tokenAmount*7)/100);
+            createVestingSchedule(to, time, (MONTH*i), (tokenAmount*7)/100);
         }
         // unlock last 10% on 11th month after initialTokenUnlockTime
-        createVestingSchedule(to, time, initialTokenUnlockTime + (MONTH*11), (tokenAmount*10)/100);
+        createVestingSchedule(to, time, (MONTH*11), (tokenAmount*10)/100);
 
         totalAmountInVesting += tokenAmount;
         totalSoldToken += tokenAmount;
@@ -303,8 +310,8 @@ contract PrivateSale is Ownable, Vesting{
     /**
     * @dev Claim the withdrawable tokens
     */
-    function claimWithdrawableAmount() external {
-        uint256 amount = claim(_msgSender());
+    function claimWithdrawableAmount() external lockTheWithdraw{
+        uint256 amount = claim(_msgSender(), initialTokenUnlockTime);
         vemate.transfer(_msgSender(), amount);
         totalAmountInVesting -= amount;
     }
